@@ -1,0 +1,32 @@
+{
+  "version": "v1",
+  "host": "https://adb-2824599842151189.9.azuredatabricks.net",
+  "remote_path": "/Workspace/Users/aaloliveira@toyota.com.br/databricks_apps/toyotapicking_2026_05_19-12_03/flask-hello-world-app",
+  "last_modified_times": {
+    ".gitattributes": "2026-05-19T10:56:55.0764995-03:00",
+    "app.py": "2026-05-19T11:17:42.3136396-03:00",
+    "app.yaml": "2026-05-19T10:57:41.4607124-03:00",
+    "manifest.yaml": "2026-05-19T10:57:42.1020866-03:00",
+    "requirements.txt": "2026-05-19T10:57:42.8008373-03:00",
+    "templates/base.html": "2026-05-19T11:19:17.4348151-03:00",
+    "templates/index.html": "2026-05-19T11:20:39.3307237-03:00"
+  },
+  "local_to_remote_names": {
+    ".gitattributes": ".gitattributes",
+    "app.py": "app.py",
+    "app.yaml": "app.yaml",
+    "manifest.yaml": "manifest.yaml",
+    "requirements.txt": "requirements.txt",
+    "templates/base.html": "templates/base.html",
+    "templates/index.html": "templates/index.html"
+  },
+  "remote_to_local_names": {
+    ".gitattributes": ".gitattributes",
+    "app.py": "app.py",
+    "app.yaml": "app.yaml",
+    "manifest.yaml": "manifest.yaml",
+    "requirements.txt": "requirements.txt",
+    "templates/base.html": "templates/base.html",
+    "templates/index.html": "templates/index.html"
+  }
+}
