@@ -1,0 +1,478 @@
+{% extends 'base.html' %}
+{% block title %}Toyota Picking — Início{% endblock %}
+
+{% block content %}
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: #e9ecef;
+    font-family: system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+  }
+
+  .home-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 24px;
+    box-sizing: border-box;
+  }
+
+  .home-card {
+    background: #fff;
+    border: 2px solid #0a2540;
+    border-radius: 8px;
+    padding: 28px 36px;
+    max-width: 620px;
+    width: 100%;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  }
+
+  .home-title {
+    font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+    font-weight: bold;
+    color: #0a2540;
+    text-align: center;
+    margin: 0 0 6px 0;
+  }
+
+  .home-subtitle {
+    font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+    color: #495057;
+    text-align: center;
+    margin: 0 0 20px 0;
+  }
+
+  .home-form label {
+    display: block;
+    font-size: 0.95rem;
+    color: #0a2540;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .field-group {
+    margin-bottom: 14px;
+  }
+
+  .order-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .order-row input[type="text"] {
+    flex: 1;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    font-size: 1.4rem;
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 2px;
+    border: 2px solid #0a2540;
+    border-radius: 4px;
+    text-align: center;
+    outline: none;
+    min-width: 0;
+  }
+
+  .order-row input[type="text"]:focus {
+    border-color: #00a870;
+    box-shadow: 0 0 0 3px rgba(0,168,112,0.15);
+  }
+
+  .btn-buscar {
+    padding: 0 22px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    background: #fff;
+    color: #0a2540;
+    border: 2px solid #0a2540;
+    border-radius: 4px;
+    cursor: pointer;
+    min-height: 52px;
+    white-space: nowrap;
+  }
+
+  .btn-buscar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-buscar:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  .home-form select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    font-size: 1.15rem;
+    border: 2px solid #0a2540;
+    border-radius: 4px;
+    background: #fff;
+    outline: none;
+    min-height: 52px;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='%230a2540' d='M5 8l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+    padding-right: 44px;
+  }
+
+  .home-form select:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+  }
+
+  .home-form select:focus:not(:disabled) {
+    border-color: #00a870;
+    box-shadow: 0 0 0 3px rgba(0,168,112,0.15);
+  }
+
+  .btn-iniciar {
+    width: 100%;
+    margin-top: 10px;
+    padding: 14px;
+    font-size: 1.15rem;
+    font-weight: bold;
+    background: #0a2540;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    min-height: 56px;
+  }
+
+  .btn-iniciar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-iniciar:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .home-hint {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .home-error {
+    display: none;
+    background: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  .home-error.is-visible {
+    display: block;
+  }
+
+  .flag-notice {
+    display: none;
+    background: #fff3cd;
+    color: #664d03;
+    border: 1px solid #ffe69c;
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-align: center;
+    margin-bottom: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .flag-notice.is-visible {
+    display: block;
+  }
+
+  .flag-notice .flag-letter {
+    display: inline-block;
+    background: #664d03;
+    color: #fff3cd;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-right: 6px;
+  }
+</style>
+
+<div class="home-wrapper">
+  <div class="home-card">
+    <h1 class="home-title">Toyota Picking</h1>
+    <p class="home-subtitle">Selecione pedido, rota e dolly</p>
+
+    <div class="home-error" id="home-error"></div>
+    <div class="flag-notice" id="flag-notice">
+      <span class="flag-letter">P</span>Este pedido é provisório
+    </div>
+
+    <form class="home-form" id="home-form" method="GET" action="/picking/">
+      <div class="field-group">
+        <label for="order_number">Número do pedido</label>
+        <div class="order-row">
+          <input
+            type="text"
+            id="order_number"
+            name="order_number"
+            placeholder="YYYYMMDDLL"
+            pattern="\d{10}"
+            maxlength="10"
+            inputmode="numeric"
+            autocomplete="off"
+            autofocus
+            required
+          >
+          <button type="button" class="btn-buscar" id="btn-buscar">Buscar</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="route">Rota</label>
+        <select id="route" name="route" disabled required>
+          <option value="">— selecione o pedido primeiro —</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label for="dolly">Dolly</label>
+        <select id="dolly" name="dolly" disabled required>
+          <option value="">— selecione a rota primeiro —</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-iniciar" id="btn-iniciar" disabled>
+        Iniciar picking →
+      </button>
+      <div class="home-hint">Formato do pedido: 10 dígitos (ex.: 2026051809)</div>
+    </form>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const $ = (sel) => document.querySelector(sel);
+
+  const orderInput  = $("#order_number");
+  const btnBuscar   = $("#btn-buscar");
+  const routeSelect = $("#route");
+  const dollySelect = $("#dolly");
+  const btnIniciar  = $("#btn-iniciar");
+  const errorBox    = $("#home-error");
+  const flagNotice  = $("#flag-notice");
+  const form        = $("#home-form");
+
+  const BLANK_ROUTE_LABEL = "(Sem rota)";
+
+  // Session state — the effective flag ('F' or 'P') for the current order.
+  // Set when routes are fetched; sent along on dolly fetch + final redirect.
+  let currentFlag = null;
+
+  function showError(msg) {
+    errorBox.textContent = msg;
+    errorBox.classList.add("is-visible");
+  }
+  function clearError() {
+    errorBox.textContent = "";
+    errorBox.classList.remove("is-visible");
+  }
+
+  function showFlagNotice(flag) {
+    if (flag === "P") {
+      flagNotice.classList.add("is-visible");
+    } else {
+      flagNotice.classList.remove("is-visible");
+    }
+  }
+  function hideFlagNotice() {
+    flagNotice.classList.remove("is-visible");
+  }
+
+  function resetSelect(sel, placeholder) {
+    sel.innerHTML = "";
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = placeholder;
+    sel.appendChild(opt);
+    sel.disabled = true;
+    sel.value = "";
+  }
+
+  function updateSubmitState() {
+    const orderOk = /^\d{10}$/.test(orderInput.value.trim());
+    const routeChosen = !routeSelect.disabled
+      && routeSelect.selectedIndex >= 0
+      && routeSelect.options[routeSelect.selectedIndex].dataset.real === "1";
+    const dollyChosen = !dollySelect.disabled && dollySelect.value !== "";
+    btnIniciar.disabled = !(orderOk && routeChosen && dollyChosen);
+  }
+
+  async function fetchRoutes() {
+    clearError();
+    hideFlagNotice();
+    currentFlag = null;
+
+    const order = orderInput.value.trim();
+    if (!/^\d{10}$/.test(order)) {
+      showError("Pedido inválido — deve ter 10 dígitos");
+      return;
+    }
+
+    btnBuscar.disabled = true;
+    btnBuscar.textContent = "…";
+
+    try {
+      const resp = await fetch(`/api/orders/${order}/routes`);
+      const data = await resp.json();
+      if (!resp.ok || !data.ok) {
+        showError(data.error || `Erro HTTP ${resp.status}`);
+        resetSelect(routeSelect, "— selecione o pedido primeiro —");
+        resetSelect(dollySelect, "— selecione a rota primeiro —");
+        return;
+      }
+
+      const routes = data.routes || [];
+      currentFlag = data.flag || null;
+
+      if (routes.length === 0 || currentFlag === null) {
+        showError("Nenhuma rota encontrada para este pedido");
+        resetSelect(routeSelect, "— selecione o pedido primeiro —");
+        resetSelect(dollySelect, "— selecione a rota primeiro —");
+        return;
+      }
+
+      showFlagNotice(currentFlag);
+
+      routeSelect.innerHTML = "";
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "— selecione a rota —";
+      placeholder.dataset.real = "0";
+      routeSelect.appendChild(placeholder);
+
+      routes.forEach(r => {
+        const opt = document.createElement("option");
+        opt.value = r;
+        opt.textContent = r === "" ? BLANK_ROUTE_LABEL : r;
+        opt.dataset.real = "1";
+        routeSelect.appendChild(opt);
+      });
+      routeSelect.disabled = false;
+
+      resetSelect(dollySelect, "— selecione a rota primeiro —");
+
+    } catch (e) {
+      showError(`Erro de rede: ${e.message}`);
+    } finally {
+      btnBuscar.disabled = false;
+      btnBuscar.textContent = "Buscar";
+      updateSubmitState();
+    }
+  }
+
+  async function fetchDollies() {
+    clearError();
+    const order = orderInput.value.trim();
+
+    const opt = routeSelect.options[routeSelect.selectedIndex];
+    if (!opt || opt.dataset.real !== "1") {
+      resetSelect(dollySelect, "— selecione a rota primeiro —");
+      updateSubmitState();
+      return;
+    }
+    const route = routeSelect.value;
+
+    try {
+      const url = `/api/orders/${order}/dollies`
+        + `?route=${encodeURIComponent(route)}`
+        + `&flag=${encodeURIComponent(currentFlag || "")}`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+      if (!resp.ok || !data.ok) {
+        showError(data.error || `Erro HTTP ${resp.status}`);
+        resetSelect(dollySelect, "— selecione a rota primeiro —");
+        return;
+      }
+
+      const dollies = data.dollies || [];
+      if (dollies.length === 0) {
+        showError("Nenhum dolly encontrado para esta rota");
+        resetSelect(dollySelect, "— selecione a rota primeiro —");
+        return;
+      }
+
+      dollySelect.innerHTML = "";
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "— selecione o dolly —";
+      dollySelect.appendChild(placeholder);
+
+      dollies.forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d;
+        opt.textContent = d;
+        dollySelect.appendChild(opt);
+      });
+      dollySelect.disabled = false;
+
+    } catch (e) {
+      showError(`Erro de rede: ${e.message}`);
+    } finally {
+      updateSubmitState();
+    }
+  }
+
+  // Wire events
+  btnBuscar.addEventListener("click", fetchRoutes);
+
+  orderInput.addEventListener("input", () => {
+    clearError();
+    hideFlagNotice();
+    currentFlag = null;
+    resetSelect(routeSelect, "— selecione o pedido primeiro —");
+    resetSelect(dollySelect, "— selecione a rota primeiro —");
+    updateSubmitState();
+  });
+
+  orderInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      fetchRoutes();
+    }
+  });
+
+  routeSelect.addEventListener("change", fetchDollies);
+  dollySelect.addEventListener("change", updateSubmitState);
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (btnIniciar.disabled) return;
+    const order = orderInput.value.trim();
+    const route = routeSelect.value;
+    const dolly = dollySelect.value;
+    const flag  = currentFlag || "";
+    const url = `/picking/${order}`
+      + `?route=${encodeURIComponent(route)}`
+      + `&dolly=${encodeURIComponent(dolly)}`
+      + `&flag=${encodeURIComponent(flag)}`;
+    window.location.href = url;
+  });
+})();
+</script>
+{% endblock %}

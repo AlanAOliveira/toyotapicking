@@ -1,0 +1,717 @@
+{% extends 'base.html' %}
+{% block title %}Picking{% endblock %}
+
+{% block content %}
+<style>
+  /* Viewport-locked layout for Galaxy Tab Active5 (8" 1920x1200 landscape) */
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background-color: #e9ecef;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+
+  .picking-wrapper {
+    box-sizing: border-box;
+    display: flex;
+    gap: 8px;
+    padding: 6px;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+  }
+
+  /* ---------- TABLE ---------- */
+  .picking-table-container {
+    flex: 2.2;
+    border: 2px solid #0a2540;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .picking-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    text-align: center;
+    margin: 0;
+    table-layout: fixed;
+  }
+
+  .picking-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: #f1f3f5;
+  }
+
+  .picking-table th {
+    padding: 6px 4px;
+    border: 1px solid #0a2540;
+    font-weight: 600;
+    font-size: clamp(0.7rem, 1.1vw, 0.95rem);
+  }
+
+  .picking-table td {
+    padding: 6px 4px;
+    border: 1px solid #cfd4da;
+    font-size: clamp(0.85rem, 1.3vw, 1.15rem);
+    font-weight: 600;
+  }
+
+  .picking-table .part-number {
+    font-size: clamp(0.65rem, 0.95vw, 0.85rem);
+    word-break: break-all;
+  }
+
+  .picking-table tbody tr {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .picking-table tbody tr:active {
+    filter: brightness(0.92);
+  }
+
+  .picking-table tbody tr.row-ok {
+    cursor: default;
+  }
+
+  .empty-state {
+    padding: 40px 20px !important;
+    color: #6c757d !important;
+    font-size: clamp(1rem, 1.5vw, 1.2rem) !important;
+    font-weight: 500 !important;
+    background: #fff;
+    text-align: center;
+    border: none !important;
+  }
+
+  .row-ok       { background-color: #8fd19e; }
+  .row-kse      { background-color: #e74c3c; color: #fff; }
+  .row-pending  { background-color: #f8f9fa; }
+  .row-warning  { background-color: #ffffff; }
+
+  .status-progress {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #495057;
+  }
+
+  /* ---------- INFO PANEL ---------- */
+  .info-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+    min-width: 0;
+  }
+
+  .info-card {
+    border: 2px solid #0a2540;
+    border-radius: 4px;
+    padding: 4px 8px;
+    background: #fff;
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+  }
+
+  .info-card .label {
+    position: absolute;
+    top: 2px;
+    left: 6px;
+    font-size: clamp(0.6rem, 0.85vw, 0.72rem);
+    color: #495057;
+  }
+
+  .info-card .value {
+    text-align: center;
+    font-size: clamp(1.1rem, 2vw, 1.7rem);
+    font-weight: bold;
+    margin-top: 8px;
+    line-height: 1.1;
+  }
+
+  .top-row, .info-row {
+    display: flex;
+    gap: 6px;
+    align-items: stretch;
+    flex-shrink: 0;
+  }
+
+  .top-row {
+    height: 56px;
+  }
+
+  .datetime-box {
+    flex: 1;
+    border: 2px solid #0a2540;
+    border-radius: 4px;
+    padding: 4px 8px;
+    background: #0a2540;
+    color: #00ff9d;
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1px;
+  }
+
+  .clock-time {
+    font-size: clamp(1.1rem, 1.9vw, 1.5rem);
+    font-weight: bold;
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  .clock-date {
+    font-size: clamp(0.65rem, 0.9vw, 0.78rem);
+    color: #c0c0c0;
+    letter-spacing: 1px;
+  }
+
+  .btn-exit {
+    border: 2px solid #0a2540;
+    border-radius: 4px;
+    padding: 0 18px;
+    background: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: clamp(0.85rem, 1.2vw, 1rem);
+    min-width: 80px;
+  }
+
+  .btn-chamar {
+    border: 2px solid #0a2540;
+    border-radius: 4px;
+    padding: 10px;
+    background: #fff;
+    color: #e74c3c;
+    font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  .btn-proximo {
+    border: 2px solid #0a2540;
+    border-radius: 4px;
+    padding: 10px;
+    background: #fff;
+    font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  .info-row .info-card { flex: 1; }
+
+  .mensagem-value {
+    color: #8fd19e;
+    font-size: clamp(1.3rem, 2.4vw, 2rem);
+    font-weight: bold;
+    text-align: center;
+    margin-top: 4px;
+    line-height: 1.1;
+  }
+
+  button {
+    min-height: 44px;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+
+/* Small provisional-flag indicator on the "Numero de pedido" card */
+  .flag-indicator {
+    position: absolute;
+    top: 2px;
+    right: 6px;
+    display: inline-block;
+    background: #ffc107;
+    color: #0a2540;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: clamp(0.7rem, 1vw, 0.85rem);
+    padding: 1px 6px;
+    border-radius: 3px;
+    line-height: 1.3;
+  }
+
+
+  /* ==================================================================
+     STATUS MODAL — DATA_STANDARDS §9.9
+     ================================================================== */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 37, 64, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+  }
+
+  .modal-backdrop.is-open { display: flex; }
+
+  .status-modal {
+    background: #fff;
+    border-radius: 8px;
+    width: min(560px, 96vw);
+    max-height: 96vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  .status-modal header {
+    padding: 12px 16px;
+    background: #0a2540;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .status-modal header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .modal-close {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.6rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+  }
+
+  .status-modal .modal-body {
+    padding: 12px 16px;
+    overflow-y: auto;
+  }
+
+  .modal-info {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 12px;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+  }
+
+  .modal-info dt { font-weight: 600; color: #495057; }
+  .modal-info dd { margin: 0; font-family: 'Courier New', monospace; font-weight: bold; }
+
+  .modal-progress {
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #0a2540;
+    padding: 8px;
+    background: #f1f3f5;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+
+  .modal-progress .count {
+    font-family: 'Courier New', monospace;
+    font-size: 1.4rem;
+    color: #00a870;
+  }
+
+  .modal-scan {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .modal-scan label { font-weight: 600; color: #0a2540; }
+
+  .modal-scan input {
+    padding: 12px;
+    font-size: 1.1rem;
+    font-family: 'Courier New', monospace;
+    border: 2px solid #0a2540;
+    border-radius: 4px;
+    outline: none;
+  }
+
+  .modal-scan input:focus {
+    border-color: #00a870;
+    box-shadow: 0 0 0 3px rgba(0, 168, 112, 0.15);
+  }
+
+  .modal-message {
+    padding: 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 12px;
+    display: none;
+  }
+
+  .modal-message.is-error {
+    display: block;
+    background: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+  }
+
+  .modal-message.is-success {
+    display: block;
+    background: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+  }
+
+  .modal-message.is-info {
+    display: block;
+    background: #cfe2ff;
+    color: #084298;
+    border: 1px solid #b6d4fe;
+  }
+
+  .modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .modal-actions button {
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    min-height: 88px;
+    border: 2px solid transparent;
+  }
+
+  .btn-kse {
+    background: #e74c3c;
+    color: #fff;
+    border-color: #b02a1c;
+  }
+
+  .btn-call-kanban {
+    background: #fff;
+    color: #0a2540;
+    border-color: #0a2540;
+  }
+
+  .btn-cancel {
+    grid-column: 1 / -1;
+    background: #f8f9fa;
+    color: #0a2540;
+    border-color: #adb5bd;
+    padding: 12px;
+    min-height: 52px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0a2540;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-weight: 600;
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  .toast.is-visible { opacity: 1; }
+  .toast.is-error   { background: #b02a1c; }
+  .toast.is-success { background: #0f5132; }
+
+  /* Camera scanner (inside modal) */
+  .modal-camera {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .modal-camera .camera-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .btn-camera {
+    padding: 12px 16px;
+    font-size: 1rem;
+    font-weight: bold;
+    background: #0a2540;
+    color: #fff;
+    border: 2px solid #0a2540;
+    border-radius: 4px;
+    cursor: pointer;
+    min-height: 44px;
+    flex: 1;
+  }
+
+  .btn-camera:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .camera-preview {
+    display: none;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #000;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 2px solid #0a2540;
+  }
+
+  .camera-preview.is-active { display: block; }
+
+  .camera-preview video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .camera-preview .scan-overlay {
+    position: absolute;
+    inset: 15%;
+    border: 3px solid #00ff9d;
+    border-radius: 8px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+  }
+
+  .camera-preview .camera-hint {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 8px;
+    text-align: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+  }
+</style>
+
+<div class="picking-wrapper" data-order-number="{{ info.numero_pedido }}">
+  <!-- Picking Table -->
+  <div class="picking-table-container">
+    <table class="picking-table">
+      <thead>
+        <tr>
+          <th style="width:11%">Endereço</th>
+          <th style="width:8%">Back</th>
+          <th style="width:24%">Part Number</th>
+          <th style="width:8%">QTD</th>
+          <th style="width:13%">Exporter</th>
+          <th style="width:10%">Caixa</th>
+          <th style="width:26%">Status</th>
+        </tr>
+      </thead>
+      <tbody id="picking-tbody">
+        {% if items %}
+        {% for item in items %}
+        <tr
+          data-kanban="{{ item.caixa }}"
+          data-part-number="{{ item.part_number }}"
+          data-endereco="{{ item.endereco }}"
+          data-qtd="{{ item.qtd }}"
+          data-boxes-scanned="{{ item.boxes_scanned|default(0) }}"
+          data-boxes-required="{{ item.boxes_required|default(1) }}"
+          data-status="{{ item.status|default('PENDING') }}"
+          class="
+            {% if item.status == 'OK' %}row-ok
+            {% elif item.status == 'KSE' %}row-kse
+            {% elif item.status == 'WARNING' %}row-warning
+            {% else %}row-pending{% endif %}">
+          <td>{{ item.endereco }}</td>
+          <td>{{ item.back }}</td>
+          <td class="part-number">{{ item.part_number }}</td>
+          <td>{{ item.qtd }}</td>
+          <td>{{ item.exporter }}</td>
+          <td>{{ item.caixa }}</td>
+          <td class="status-cell">
+            {% if item.status == 'OK' %}OK
+            {% elif item.status == 'KSE' %}KSE
+            {% elif item.status == 'WARNING' %}WARNING
+            {% elif item.boxes_scanned and item.boxes_scanned > 0 %}
+              <span class="status-progress">{{ item.boxes_scanned }}/{{ item.boxes_required }}</span>
+            {% else %}
+              Pending
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="7" class="empty-state">
+            {{ info.mensagem or 'Nenhum item para exibir' }}
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Info Panel -->
+  <div class="info-panel">
+    <div class="top-row">
+      <div class="datetime-box">
+        <div class="clock-time" id="clock-time">--:--:--</div>
+        <div class="clock-date" id="clock-date">--/--/----</div>
+      </div>
+      <button class="btn-exit">Exit</button>
+    </div>
+
+    <button class="btn-chamar">Chamar</button>
+
+    <div class="info-row">
+      <div class="info-card">
+        <span class="label">Operador</span>
+        <div class="value">{{ info.operador }}</div>
+      </div>
+      <div class="info-card">
+        <div class="value" style="font-size:clamp(0.9rem,1.4vw,1.15rem); margin-top:10px;">
+          {{ info.operador_status }}
+        </div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-card" style="flex:2;">
+        <span class="label">Numero de pedido</span>
+        {% if info.is_provisional %}
+        <span class="flag-indicator" title="Pedido provisório">P</span>
+        {% endif %}
+        <div class="value">{{ info.numero_pedido }}</div>
+      </div>
+      <div class="info-card">
+        <span class="label">Lane</span>
+        <div class="value">{{ info.lane }}</div>
+      </div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-card">
+        <span class="label">Rota</span>
+        <div class="value">{{ info.rota }}</div>
+      </div>
+      <div class="info-card">
+        <span class="label">Dolly</span>
+        <div class="value">{{ info.dolly }}</div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <span class="label">Número de caixas restantes</span>
+      <div class="value" id="caixas-restantes" style="font-size: clamp(1.6rem, 2.8vw, 2.4rem);">
+        {{ info.caixas_restantes }}
+      </div>
+    </div>
+
+    <div class="info-card">
+      <span class="label">Mensagem</span>
+      <div class="mensagem-value">{{ info.mensagem }}</div>
+    </div>
+
+    <button class="btn-proximo">Próximo carrinho</button>
+  </div>
+</div>
+
+
+<!-- Status Modal — hidden until a row is tapped -->
+<div class="modal-backdrop" id="status-modal" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="status-modal">
+    <header>
+      <h2 id="modal-title">Confirmar Picking</h2>
+      <button type="button" class="modal-close" aria-label="Fechar">×</button>
+    </header>
+    <div class="modal-body">
+      <dl class="modal-info">
+        <dt>Endereço:</dt><dd id="modal-endereco">—</dd>
+        <dt>Part:</dt>    <dd id="modal-part">—</dd>
+        <dt>Caixa:</dt>   <dd id="modal-kanban">—</dd>
+        <dt>QTD:</dt>     <dd id="modal-qtd">—</dd>
+      </dl>
+
+      <div class="modal-progress">
+        Progresso:
+        <span class="count">
+          <span id="modal-scanned">0</span>/<span id="modal-required">1</span>
+        </span>
+        caixas escaneadas
+      </div>
+
+      <div class="modal-camera">
+        <div class="camera-controls">
+          <button type="button" class="btn-camera" id="btn-camera-toggle">
+            📷 Ativar câmera
+          </button>
+        </div>
+
+        <div class="camera-preview" id="camera-preview">
+          <video id="camera-video" playsinline muted></video>
+          <div class="scan-overlay"></div>
+          <div class="camera-hint">Aponte para o QR da caixa</div>
+        </div>
+      </div>
+
+      <div class="modal-scan">
+        <label for="modal-scan-input">Ou digite / use scanner externo</label>
+        <input type="text" id="modal-scan-input" autocomplete="off" autocapitalize="characters" spellcheck="false"
+          placeholder="Aguardando leitura...">
+      </div>
+
+      <div class="modal-message" id="modal-message"></div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-kse" id="btn-kse">✗ KSE</button>
+        <button type="button" class="btn-call-kanban" id="btn-call-kanban">📞 Chamar op.</button>
+        <button type="button" class="btn-cancel" id="btn-cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/picking.js') }}?v={{ config['VERSION'] }}"></script>
+{% endblock %}
+{% endblock %}

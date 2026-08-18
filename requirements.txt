@@ -1,4 +1,7 @@
-databricks-sdk~=0.33.0
+databricks-sdk>=0.55.0
 pandas~=2.2.3
 flask~=3.0.3
 python-dotenv~=1.2.1
+databricks-sql-connector>=3.0.0
+psycopg[binary]~=3.2
+psycopg-pool~=3.2

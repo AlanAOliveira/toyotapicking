@@ -4,3 +4,13 @@ command: [
   "app.py",
   "run"
 ]
+
+env:
+  - name: DATABRICKS_WAREHOUSE_ID
+    value: "f68df288d9648f58"
+
+  - name: DATABRICKS_TOKEN
+    value: "dapia288906ce30eca8ed51b5d2f3d70e0b4-3"
+
+  - name: PGENDPOINT
+    valueFrom: database

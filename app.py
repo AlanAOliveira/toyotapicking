@@ -1,22 +1,44 @@
-import pandas as pd
-from flask import Flask, render_template
-import logging
+"""Toyota Picking — Flask application entry point."""
 import os
+import logging
+from flask import Flask
+from config import Config
 
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+log = logging.getLogger(__name__)
 
-app = Flask(__name__)
 
-@app.route('/')
-def index():
-    rendered_html = render_template('index.html')
-    return rendered_html
+def create_app(config_class: type = Config) -> Flask:
+    """Application factory."""
+    app = Flask(__name__)
+    app.config.from_object(config_class)
 
-if __name__ == '__main__':
-    host = os.getenv('FLASK_RUN_HOST', '0.0.0.0')
-    port = int(os.getenv('FLASK_RUN_PORT', 8000))
+    # Register blueprints
+    from routes.main import main_bp
+    from routes.picking import picking_bp
+    from routes.api import api_bp
 
-    app.run(debug=True, host=host, port=port)
-    print(f"Flask app running on http://{host}:{port}")
+    app.register_blueprint(main_bp)
+    app.register_blueprint(picking_bp, url_prefix="/picking")
+    app.register_blueprint(api_bp, url_prefix="/api")
 
+    # Initialize Lakebase schema at startup.
+    # Failure is logged but doesn't crash the app — the pick-list read path
+    # doesn't need Lakebase, only the status feature does. This lets the app
+    # keep serving read-only picking screens even if Lakebase is unreachable.
+    try:
+        from database.lakebase_schema import init_lakebase_schema
+        init_lakebase_schema()
+    except Exception as e:
+        log.exception("Lakebase schema init failed: %s", e)
+
+    return app
+
+
+app = create_app()
+app.config["VERSION"] = os.environ.get(
+    "APP_VERSION", "dev-" + str(int(__import__("time").time()))
+)
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000, debug=True)
