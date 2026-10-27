@@ -1,0 +1,1336 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Toyota Picking (Standalone)</title>
+  <style>
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      background: #e9ecef;
+      font-family: system-ui, -apple-system, sans-serif
+    }
+
+    .hidden {
+      display: none !important
+    }
+
+    button {
+      min-height: 44px;
+      -webkit-tap-highlight-color: rgba(0, 0, 0, .1)
+    }
+
+    /* ---------- HOME ---------- */
+    .home-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 24px
+    }
+
+    .home-card {
+      background: #fff;
+      border: 2px solid #0a2540;
+      border-radius: 8px;
+      padding: 24px 32px;
+      max-width: 640px;
+      width: 100%;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, .08);
+      max-height: 96vh;
+      overflow-y: auto
+    }
+
+    .home-title {
+      font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+      font-weight: bold;
+      color: #0a2540;
+      text-align: center;
+      margin: 0 0 4px
+    }
+
+    .home-subtitle {
+      font-size: clamp(.9rem, 1.2vw, 1.05rem);
+      color: #495057;
+      text-align: center;
+      margin: 0 0 16px
+    }
+
+    .home-form label {
+      display: block;
+      font-size: .95rem;
+      color: #0a2540;
+      margin-bottom: 6px;
+      font-weight: 600
+    }
+
+    .field-group {
+      margin-bottom: 14px
+    }
+
+    .order-row {
+      display: flex;
+      gap: 8px
+    }
+
+    .order-row input {
+      flex: 1;
+      min-width: 0;
+      padding: 14px 16px;
+      font-size: 1.4rem;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 2px;
+      border: 2px solid #0a2540;
+      border-radius: 4px;
+      text-align: center;
+      outline: none
+    }
+
+    .order-row input:focus,
+    .home-form select:focus {
+      border-color: #00a870;
+      box-shadow: 0 0 0 3px rgba(0, 168, 112, .15)
+    }
+
+    .btn-buscar {
+      padding: 0 22px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      background: #fff;
+      color: #0a2540;
+      border: 2px solid #0a2540;
+      border-radius: 4px;
+      cursor: pointer;
+      min-height: 52px
+    }
+
+    .home-form select {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 1.15rem;
+      border: 2px solid #0a2540;
+      border-radius: 4px;
+      background: #fff;
+      outline: none;
+      min-height: 52px
+    }
+
+    .home-form select:disabled {
+      background: #e9ecef;
+      color: #6c757d
+    }
+
+    .btn-iniciar {
+      width: 100%;
+      margin-top: 10px;
+      padding: 14px;
+      font-size: 1.15rem;
+      font-weight: bold;
+      background: #0a2540;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      min-height: 56px
+    }
+
+    .btn-iniciar:disabled {
+      opacity: .5;
+      cursor: not-allowed
+    }
+
+    .home-hint {
+      font-size: .8rem;
+      color: #6c757d;
+      text-align: center;
+      margin-top: 8px
+    }
+
+    .home-error {
+      display: none;
+      background: #f8d7da;
+      color: #842029;
+      border: 1px solid #f5c2c7;
+      padding: 10px;
+      border-radius: 4px;
+      text-align: center;
+      margin-bottom: 12px;
+      font-weight: 600
+    }
+
+    .home-error.is-visible {
+      display: block
+    }
+
+    .flag-notice {
+      display: none;
+      background: #fff3cd;
+      color: #664d03;
+      border: 1px solid #ffe69c;
+      padding: 8px 12px;
+      border-radius: 4px;
+      text-align: center;
+      margin-bottom: 12px;
+      font-weight: 600;
+      font-size: .9rem
+    }
+
+    .flag-notice.is-visible {
+      display: block
+    }
+
+    .flag-letter {
+      display: inline-block;
+      background: #664d03;
+      color: #fff3cd;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 3px;
+      margin-right: 6px
+    }
+
+    .data-box {
+      border: 1px dashed #0a2540;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      background: #f8f9fa;
+      font-size: .85rem
+    }
+
+    .data-box .row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center
+    }
+
+    .data-box button {
+      min-height: 38px;
+      padding: 4px 12px;
+      border: 1px solid #0a2540;
+      background: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600
+    }
+
+    .data-status {
+      margin-top: 6px;
+      color: #0a2540;
+      font-weight: 600
+    }
+
+    /* ---------- PICKING ---------- */
+    .picking-wrapper {
+      display: flex;
+      gap: 8px;
+      padding: 6px;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden
+    }
+
+    .picking-table-container {
+      flex: 2.2;
+      border: 2px solid #0a2540;
+      border-radius: 4px;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: #fff
+    }
+
+    .picking-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      text-align: center;
+      table-layout: fixed
+    }
+
+    .picking-table thead {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #f1f3f5
+    }
+
+    .picking-table th {
+      padding: 6px 4px;
+      border: 1px solid #0a2540;
+      font-weight: 600;
+      font-size: clamp(.7rem, 1.1vw, .95rem)
+    }
+
+    .picking-table td {
+      padding: 6px 4px;
+      border: 1px solid #cfd4da;
+      font-size: clamp(.85rem, 1.3vw, 1.15rem);
+      font-weight: 600
+    }
+
+    .picking-table .part-number {
+      font-size: clamp(.65rem, .95vw, .85rem);
+      word-break: break-all;
+      font-family: 'Courier New', monospace
+    }
+
+    .picking-table tbody tr {
+      cursor: pointer
+    }
+
+    .picking-table tbody tr:active {
+      filter: brightness(.92)
+    }
+
+    .picking-table tbody tr.row-ok {
+      cursor: default
+    }
+
+    .empty-state {
+      padding: 40px 20px !important;
+      color: #6c757d !important;
+      font-weight: 500 !important;
+      border: none !important
+    }
+
+    .row-ok {
+      background: #8fd19e
+    }
+
+    .row-kse {
+      background: #e74c3c;
+      color: #fff
+    }
+
+    .row-pending {
+      background: #f8f9fa
+    }
+
+    .row-warning {
+      background: #fff
+    }
+
+    .status-progress {
+      font-family: 'Courier New', monospace;
+      font-size: .9em;
+      color: #495057
+    }
+
+    .info-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 0;
+      min-width: 0
+    }
+
+    .info-card {
+      border: 2px solid #0a2540;
+      border-radius: 4px;
+      padding: 4px 8px;
+      background: #fff;
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0
+    }
+
+    .info-card .label {
+      position: absolute;
+      top: 2px;
+      left: 6px;
+      font-size: clamp(.6rem, .85vw, .72rem);
+      color: #495057
+    }
+
+    .info-card .value {
+      text-align: center;
+      font-size: clamp(1.1rem, 2vw, 1.7rem);
+      font-weight: bold;
+      margin-top: 8px;
+      line-height: 1.1
+    }
+
+    .top-row,
+    .info-row {
+      display: flex;
+      gap: 6px;
+      align-items: stretch;
+      flex-shrink: 0
+    }
+
+    .top-row {
+      height: 56px
+    }
+
+    .info-row .info-card {
+      flex: 1
+    }
+
+    .datetime-box {
+      flex: 1;
+      border: 2px solid #0a2540;
+      border-radius: 4px;
+      background: #0a2540;
+      color: #00ff9d;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center
+    }
+
+    .clock-time {
+      font-size: clamp(1.1rem, 1.9vw, 1.5rem);
+      font-weight: bold;
+      letter-spacing: 2px;
+      line-height: 1
+    }
+
+    .clock-date {
+      font-size: clamp(.65rem, .9vw, .78rem);
+      color: #c0c0c0;
+      letter-spacing: 1px
+    }
+
+    .btn-exit {
+      border: 2px solid #0a2540;
+      border-radius: 4px;
+      padding: 0 18px;
+      background: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      min-width: 80px
+    }
+
+    .btn-chamar {
+      border: 2px solid #0a2540;
+      border-radius: 4px;
+      padding: 10px;
+      background: #fff;
+      color: #e74c3c;
+      font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      flex-shrink: 0
+    }
+
+    .btn-proximo {
+      border: 2px solid #0a2540;
+      border-radius: 4px;
+      padding: 10px;
+      background: #fff;
+      font-size: clamp(.95rem, 1.4vw, 1.15rem);
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      flex-shrink: 0
+    }
+
+    .mensagem-value {
+      color: #00a870;
+      font-size: clamp(1.3rem, 2.4vw, 2rem);
+      font-weight: bold;
+      text-align: center;
+      margin-top: 4px
+    }
+
+    .flag-indicator {
+      position: absolute;
+      top: 2px;
+      right: 6px;
+      background: #ffc107;
+      color: #0a2540;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      font-size: clamp(.7rem, 1vw, .85rem);
+      padding: 1px 6px;
+      border-radius: 3px
+    }
+
+    /* ---------- MODAL ---------- */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 37, 64, .7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px
+    }
+
+    .modal-backdrop.is-open {
+      display: flex
+    }
+
+    .status-modal {
+      background: #fff;
+      border-radius: 8px;
+      width: min(560px, 96vw);
+      max-height: 96vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, .35)
+    }
+
+    .status-modal header {
+      padding: 12px 16px;
+      background: #0a2540;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center
+    }
+
+    .status-modal header h2 {
+      margin: 0;
+      font-size: 1.1rem
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1.6rem;
+      cursor: pointer
+    }
+
+    .modal-body {
+      padding: 12px 16px;
+      overflow-y: auto
+    }
+
+    .modal-info {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 4px 12px;
+      margin: 0 0 12px
+    }
+
+    .modal-info dt {
+      font-weight: 600;
+      color: #495057
+    }
+
+    .modal-info dd {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      font-weight: bold
+    }
+
+    .modal-progress {
+      text-align: center;
+      font-weight: 600;
+      color: #0a2540;
+      padding: 8px;
+      background: #f1f3f5;
+      border-radius: 4px;
+      margin-bottom: 12px
+    }
+
+    .modal-progress .count {
+      font-family: 'Courier New', monospace;
+      font-size: 1.4rem;
+      color: #00a870
+    }
+
+    .modal-scan {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px
+    }
+
+    .modal-scan label {
+      font-weight: 600;
+      color: #0a2540
+    }
+
+    .modal-scan input {
+      padding: 12px;
+      font-size: 1.1rem;
+      font-family: 'Courier New', monospace;
+      border: 2px solid #0a2540;
+      border-radius: 4px;
+      outline: none
+    }
+
+    .modal-message {
+      padding: 10px;
+      border-radius: 4px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 12px;
+      display: none
+    }
+
+    .modal-message.is-error {
+      display: block;
+      background: #f8d7da;
+      color: #842029
+    }
+
+    .modal-message.is-success {
+      display: block;
+      background: #d1e7dd;
+      color: #0f5132
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px
+    }
+
+    .modal-actions button {
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      min-height: 88px;
+      border: 2px solid transparent
+    }
+
+    .btn-kse {
+      background: #e74c3c;
+      color: #fff;
+      border-color: #b02a1c !important
+    }
+
+    .btn-call-kanban {
+      background: #fff;
+      color: #0a2540;
+      border-color: #0a2540 !important
+    }
+
+    .btn-cancel {
+      grid-column: 1/-1;
+      background: #f8f9fa;
+      color: #0a2540;
+      border-color: #adb5bd !important;
+      min-height: 52px !important
+    }
+
+    .btn-camera {
+      padding: 12px 16px;
+      font-weight: bold;
+      background: #0a2540;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 6px
+    }
+
+    .camera-preview {
+      display: none;
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #000;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 12px
+    }
+
+    .camera-preview.is-active {
+      display: block
+    }
+
+    .camera-preview video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .scan-overlay {
+      position: absolute;
+      inset: 15%;
+      border: 3px solid #00ff9d;
+      border-radius: 8px;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, .35)
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0a2540;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-weight: 600;
+      z-index: 2000;
+      opacity: 0;
+      transition: opacity .2s;
+      pointer-events: none
+    }
+
+    .toast.is-visible {
+      opacity: 1
+    }
+
+    .toast.is-error {
+      background: #b02a1c
+    }
+
+    .toast.is-success {
+      background: #0f5132
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ======================= HOME ======================= -->
+  <div id="view-home" class="home-wrapper">
+    <div class="home-card">
+      <h1 class="home-title">Toyota Picking</h1>
+      <p class="home-subtitle">Selecione pedido, rota e dolly</p>
+
+      <div class="data-box">
+        <div class="row">
+          <strong>Dados eKanban:</strong>
+          <button type="button" id="btn-import">📂 Importar CSV/JSON</button>
+          <button type="button" id="btn-export">💾 Exportar scans</button>
+          <button type="button" id="btn-clear-data">🗑 Limpar dados</button>
+          <input type="file" id="file-input" accept=".csv,.json,.txt" class="hidden">
+        </div>
+        <div class="data-status" id="data-status">Nenhum dado carregado</div>
+      </div>
+
+      <div class="home-error" id="home-error"></div>
+      <div class="flag-notice" id="flag-notice"><span class="flag-letter">P</span>Este pedido é provisório</div>
+
+      <form class="home-form" id="home-form">
+        <div class="field-group">
+          <label for="order_number">Número do pedido</label>
+          <div class="order-row">
+            <input type="text" id="order_number" placeholder="YYYYMMDDLL" maxlength="10" inputmode="numeric"
+              autocomplete="off" autofocus>
+            <button type="button" class="btn-buscar" id="btn-buscar">Buscar</button>
+          </div>
+        </div>
+        <div class="field-group">
+          <label for="route">Rota</label>
+          <select id="route" disabled>
+            <option value="">— selecione o pedido primeiro —</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label for="dolly">Dolly</label>
+          <select id="dolly" disabled>
+            <option value="">— selecione a rota primeiro —</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-iniciar" id="btn-iniciar" disabled>Iniciar picking →</button>
+        <div class="home-hint">Formato do pedido: 10 dígitos (ex.: 2026051809)</div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================= PICKING ======================= -->
+  <div id="view-picking" class="picking-wrapper hidden">
+    <div class="picking-table-container">
+      <table class="picking-table">
+        <thead>
+          <tr>
+            <th style="width:11%">Endereço</th>
+            <th style="width:8%">Back</th>
+            <th style="width:24%">Part Number</th>
+            <th style="width:8%">QTD</th>
+            <th style="width:13%">Exporter</th>
+            <th style="width:10%">Caixa</th>
+            <th style="width:26%">Status</th>
+          </tr>
+        </thead>
+        <tbody id="picking-tbody"></tbody>
+      </table>
+    </div>
+    <div class="info-panel">
+      <div class="top-row">
+        <div class="datetime-box">
+          <div class="clock-time" id="clock-time">--:--:--</div>
+          <div class="clock-date" id="clock-date">--/--/----</div>
+        </div>
+        <button class="btn-exit" id="btn-exit">Exit</button>
+      </div>
+      <button class="btn-chamar" id="btn-chamar">Chamar</button>
+      <div class="info-row">
+        <div class="info-card"><span class="label">Operador</span>
+          <div class="value" id="i-operador">—</div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" style="flex:2"><span class="label">Numero de pedido</span><span
+            class="flag-indicator hidden" id="i-flag">P</span>
+          <div class="value" id="i-pedido">—</div>
+        </div>
+        <div class="info-card"><span class="label">Lane</span>
+          <div class="value" id="i-lane">—</div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><span class="label">Rota</span>
+          <div class="value" id="i-rota">—</div>
+        </div>
+        <div class="info-card"><span class="label">Dolly</span>
+          <div class="value" id="i-dolly">—</div>
+        </div>
+      </div>
+      <div class="info-card"><span class="label">Número de caixas restantes</span>
+        <div class="value" id="caixas-restantes" style="font-size:clamp(1.6rem,2.8vw,2.4rem)">0</div>
+      </div>
+      <div class="info-card"><span class="label">Mensagem</span>
+        <div class="mensagem-value" id="i-msg">—</div>
+      </div>
+      <button class="btn-proximo" id="btn-proximo">Próximo carrinho</button>
+    </div>
+  </div>
+
+  <!-- ======================= MODAL ======================= -->
+  <div class="modal-backdrop" id="status-modal" aria-hidden="true">
+    <div class="status-modal">
+      <header>
+        <h2>Confirmar Picking</h2><button type="button" class="modal-close" id="modal-x">×</button>
+      </header>
+      <div class="modal-body">
+        <dl class="modal-info">
+          <dt>Endereço:</dt>
+          <dd id="m-endereco">—</dd>
+          <dt>Part:</dt>
+          <dd id="m-part">—</dd>
+          <dt>Caixa:</dt>
+          <dd id="m-kanban">—</dd>
+          <dt>QTD:</dt>
+          <dd id="m-qtd">—</dd>
+        </dl>
+        <div class="modal-progress">Progresso: <span class="count"><span id="m-scanned">0</span>/<span
+              id="m-required">1</span></span> caixas escaneadas</div>
+        <button type="button" class="btn-camera" id="btn-camera">📷 Ativar câmera</button>
+        <div class="camera-preview" id="camera-preview"><video id="camera-video" playsinline muted></video>
+          <div class="scan-overlay"></div>
+        </div>
+        <div class="modal-scan">
+          <label for="m-input">Ou digite / use scanner externo</label>
+          <input type="text" id="m-input" autocomplete="off" autocapitalize="characters" spellcheck="false"
+            placeholder="Aguardando leitura...">
+        </div>
+        <div class="modal-message" id="m-message"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-kse" id="btn-kse">✗ KSE</button>
+          <button type="button" class="btn-call-kanban" id="btn-call">📞 Chamar op.</button>
+          <button type="button" class="btn-cancel" id="btn-cancel">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      /* =========================================================
+         CONFIG
+         ========================================================= */
+      const DEFAULT_OPERATOR = "TKLpicker";
+      const LOCALE = "pt-BR", TIMEZONE = "America/Sao_Paulo";
+      const MODAL_CLOSE_MS = 800;
+      const LS_DATA = "tp_ekanban_rows";   // imported eKanban rows
+      const LS_META = "tp_ekanban_meta";
+      const LS_STATUS = "tp_picking_status"; // {order|kanban: {...}}
+      const LS_SCANS = "tp_picking_scans";  // [{...}]
+      const LS_EVENTS = "tp_events";         // supervisor notifications log
+      const ORDER_RE = /^\d{8}(0[1-9]|[12]\d|30)$/;
+      const SCAN_PAYLOAD_RE = /^([A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{2})[^A-Z0-9](\d{16})$/;
+
+      /* =========================================================
+         UTILS
+         ========================================================= */
+      const $ = (s, r = document) => r.querySelector(s);
+      const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+      const lsGet = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+      const lsSet = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+      const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      const trim = v => (v == null ? "" : String(v).trim());
+
+      /** ISO timestamp in GMT-3 (America/Sao_Paulo) */
+      function nowBR() {
+        const d = new Date(Date.now() - 3 * 3600 * 1000);
+        return d.toISOString().replace("Z", "-03:00");
+      }
+
+      function toast(msg, kind = "info", ms = 2000) {
+        const el = $("#toast");
+        el.textContent = msg;
+        el.className = "toast" + (kind === "error" ? " is-error" : kind === "success" ? " is-success" : "");
+        requestAnimationFrame(() => el.classList.add("is-visible"));
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => el.classList.remove("is-visible"), ms);
+      }
+
+      /* =========================================================
+         DATA STANDARDS §1 — Part number
+         ========================================================= */
+      function normalizePartNumber(pn) {
+        if (pn == null) return "";
+        const s = String(pn).trim().toUpperCase().replace(/-/g, "");
+        if (/^[A-Z0-9]{12}$/.test(s)) return `${s.slice(0, 5)}-${s.slice(5, 10)}-${s.slice(10)}`;
+        if (/^[A-Z0-9]{10}$/.test(s)) return `${s.slice(0, 5)}-${s.slice(5)}-00`;
+        return String(pn).trim();
+      }
+
+      /* =========================================================
+         DATA STANDARDS §2 — Scanner payload
+         ========================================================= */
+      function parseScanPayload(raw) {
+        const text = String(raw ?? "").trim().toUpperCase();
+        const m = SCAN_PAYLOAD_RE.exec(text);
+        if (!m) throw new Error("Formato de QR inválido");
+        const [, partNumber, labelSeq] = m;
+        const n = (a, b) => parseInt(labelSeq.slice(a, b), 10);
+        const y = n(0, 4), mo = n(4, 6), d = n(6, 8), h = n(8, 10), mi = n(10, 12), s = n(12, 14);
+        const dt = new Date(Date.UTC(y, mo - 1, d, h, mi, s));
+        const ok = dt.getUTCFullYear() === y && dt.getUTCMonth() === mo - 1 && dt.getUTCDate() === d &&
+          dt.getUTCHours() === h && dt.getUTCMinutes() === mi && dt.getUTCSeconds() === s;
+        if (!ok) throw new Error("Formato de QR inválido");
+        if (labelSeq.slice(14) === "00") throw new Error("Formato de QR inválido");
+        return { partNumber, labelSeq };
+      }
+
+      /* =========================================================
+         DATA SOURCE — replaces database/iek_repository.py
+         Expected columns (CSV header or JSON keys), same names as
+         tdb_prd_trusted.sorprd_iek.ekanban_orders:
+           order_number, fix_provisional_flag, conveyance_route_internal,
+           dolly, kanban_print_address, complete_part_number,
+           box_part_quantity, supplier_code, kanban_number
+         ========================================================= */
+      let ROWS = lsGet(LS_DATA, []);
+
+      function parseCSV(text) {
+        text = text.replace(/^\uFEFF/, "");
+        const firstLine = text.split(/\r?\n/, 1)[0];
+        const delim = (firstLine.match(/;/g) || []).length > (firstLine.match(/,/g) || []).length ? ";" : ",";
+        const rows = []; let row = [], field = "", q = false;
+        for (let i = 0; i < text.length; i++) {
+          const c = text[i];
+          if (q) {
+            if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
+            else if (c === '"') q = false;
+            else field += c;
+          } else if (c === '"') q = true;
+          else if (c === delim) { row.push(field); field = ""; }
+          else if (c === "\n" || c === "\r") {
+            if (c === "\r" && text[i + 1] === "\n") i++;
+            row.push(field); field = "";
+            if (row.some(v => v !== "")) rows.push(row);
+            row = [];
+          } else field += c;
+        }
+        row.push(field); if (row.some(v => v !== "")) rows.push(row);
+        const header = rows.shift().map(h => h.trim().toLowerCase());
+        return rows.map(r => Object.fromEntries(header.map((h, i) => [h, r[i] ?? ""])));
+      }
+
+      function normalizeRows(raw) {
+        return raw.map(r => {
+          const g = k => r[k] ?? r[k.toUpperCase()] ?? "";
+          return {
+            order_number: trim(g("order_number")),
+            flag: trim(g("fix_provisional_flag")).toUpperCase(),
+            route: trim(g("conveyance_route_internal")),
+            dolly: trim(g("dolly")),
+            endereco: trim(g("kanban_print_address")),
+            part_number: normalizePartNumber(g("complete_part_number")),
+            qtd: trim(g("box_part_quantity")),
+            exporter: trim(g("supplier_code")),
+            caixa: trim(g("kanban_number")),
+            back: trim(g("back")) || "—",
+          };
+        }).filter(r => r.order_number.length === 10 && (r.flag === "F" || r.flag === "P"));
+      }
+
+      function refreshDataStatus() {
+        const meta = lsGet(LS_META, null);
+        const orders = new Set(ROWS.map(r => r.order_number)).size;
+        $("#data-status").textContent = ROWS.length
+          ? `${ROWS.length} linhas · ${orders} pedido(s) · ${meta?.file || ""} · importado ${meta?.at || ""}`
+          : "Nenhum dado carregado — importe um CSV/JSON exportado do eKanban";
+      }
+
+      function resolveEffectiveFlag(order) {
+        const rows = ROWS.filter(r => r.order_number === order);
+        if (rows.some(r => r.flag === "F")) return "F";
+        if (rows.some(r => r.flag === "P")) return "P";
+        return null;
+      }
+      const uniqSorted = arr => [...new Set(arr)].sort();
+      function fetchRoutes(order) {
+        const flag = resolveEffectiveFlag(order);
+        if (!flag) return { flag: null, routes: [] };
+        return { flag, routes: uniqSorted(ROWS.filter(r => r.order_number === order && r.flag === flag).map(r => r.route)) };
+      }
+      function fetchDollies(order, route, flag) {
+        return uniqSorted(ROWS.filter(r => r.order_number === order && r.flag === flag && r.route === route)
+          .map(r => r.dolly).filter(Boolean));
+      }
+      function fetchPickList(order, route, dolly, flag) {
+        return ROWS.filter(r => r.order_number === order && r.flag === flag &&
+          (route == null || r.route === route) && (!dolly || r.dolly === dolly))
+          .sort((a, b) => a.endereco.localeCompare(b.endereco))
+          .map(r => ({ ...r }));
+      }
+
+      /* =========================================================
+         STATUS STORE — replaces Lakebase picking_status / picking_scans
+         ========================================================= */
+      const key = (o, k) => `${o}|${k}`;
+      const getStatus = (o, k) => lsGet(LS_STATUS, {})[key(o, k)] || null;
+
+      function recordScan({ order, kanban, expectedPN, scannedPN, labelSeq, boxesRequired = 1 }) {
+        if (expectedPN !== scannedPN) throw new Error(`Peça errada: esperado ${expectedPN}, escaneado ${scannedPN}`);
+        const all = lsGet(LS_STATUS, {}), scans = lsGet(LS_SCANS, []);
+        const k = key(order, kanban);
+        const st = all[k] || { status: "PENDING", boxes_scanned: 0, boxes_required: boxesRequired };
+        if (st.status === "OK") throw new Error("Kanban já completo");
+        if (scans.some(s => s.order_number === order && s.kanban_number === kanban && s.label_seq === labelSeq))
+          throw new Error("Caixa já escaneada");
+        const ts = nowBR();
+        scans.push({ order_number: order, kanban_number: kanban, label_seq: labelSeq, part_number: scannedPN, scanned_by: DEFAULT_OPERATOR, scanned_at: ts });
+        st.boxes_scanned += 1;
+        st.status = st.boxes_scanned >= st.boxes_required ? "OK" : "PENDING";
+        st.updated_by = DEFAULT_OPERATOR; st.updated_at = ts;
+        all[k] = st; lsSet(LS_STATUS, all); lsSet(LS_SCANS, scans);
+        return st;
+      }
+
+      function markKSE(order, kanban, boxesRequired = 1) {
+        const all = lsGet(LS_STATUS, {});
+        const k = key(order, kanban);
+        const st = all[k] || { status: "PENDING", boxes_scanned: 0, boxes_required: boxesRequired };
+        const wasKse = st.status === "KSE";
+        st.status = "KSE"; st.updated_by = DEFAULT_OPERATOR; st.updated_at = nowBR();
+        all[k] = st; lsSet(LS_STATUS, all);
+        return { ...st, wasKse };
+      }
+
+      function logEvent(evt) {
+        const ev = lsGet(LS_EVENTS, []);
+        ev.push({ ...evt, operator: DEFAULT_OPERATOR, at: nowBR() });
+        lsSet(LS_EVENTS, ev);
+        console.log("SUPERVISOR_CALL", evt);
+      }
+
+      /* =========================================================
+         HOME VIEW
+         ========================================================= */
+      const orderInput = $("#order_number"), routeSel = $("#route"), dollySel = $("#dolly");
+      const btnIniciar = $("#btn-iniciar"), errBox = $("#home-error"), flagNotice = $("#flag-notice");
+      let currentFlag = null;
+
+      const showError = m => { errBox.textContent = m; errBox.classList.add("is-visible"); };
+      const clearError = () => { errBox.textContent = ""; errBox.classList.remove("is-visible"); };
+      function resetSelect(sel, ph) { sel.innerHTML = `<option value="">${ph}</option>`; sel.disabled = true; }
+      function updateSubmit() {
+        const opt = routeSel.options[routeSel.selectedIndex];
+        btnIniciar.disabled = !(ORDER_RE.test(orderInput.value.trim()) && !routeSel.disabled &&
+          opt && opt.dataset.real === "1" && !dollySel.disabled && dollySel.value !== "");
+      }
+
+      function doFetchRoutes() {
+        clearError(); flagNotice.classList.remove("is-visible"); currentFlag = null;
+        const order = orderInput.value.trim();
+        if (!ORDER_RE.test(order)) return showError("Pedido inválido — deve ter 10 dígitos");
+        if (!ROWS.length) return showError("Nenhum dado carregado — importe o arquivo do eKanban");
+        const { flag, routes } = fetchRoutes(order);
+        if (!flag || !routes.length) {
+          resetSelect(routeSel, "— selecione o pedido primeiro —"); resetSelect(dollySel, "— selecione a rota primeiro —");
+          return showError("Nenhuma rota encontrada para este pedido");
+        }
+        currentFlag = flag;
+        if (flag === "P") flagNotice.classList.add("is-visible");
+        routeSel.innerHTML = `<option value="" data-real="0">— selecione a rota —</option>` +
+          routes.map(r => `<option value="${esc(r)}" data-real="1">${r === "" ? "(Sem rota)" : esc(r)}</option>`).join("");
+        routeSel.disabled = false;
+        resetSelect(dollySel, "— selecione a rota primeiro —");
+        updateSubmit();
+      }
+
+      function doFetchDollies() {
+        clearError();
+        const opt = routeSel.options[routeSel.selectedIndex];
+        if (!opt || opt.dataset.real !== "1") { resetSelect(dollySel, "— selecione a rota primeiro —"); return updateSubmit(); }
+        const dollies = fetchDollies(orderInput.value.trim(), routeSel.value, currentFlag);
+        if (!dollies.length) { resetSelect(dollySel, "— selecione a rota primeiro —"); showError("Nenhum dolly encontrado para esta rota"); return updateSubmit(); }
+        dollySel.innerHTML = `<option value="">— selecione o dolly —</option>` +
+          dollies.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join("");
+        dollySel.disabled = false;
+        updateSubmit();
+      }
+
+      $("#btn-buscar").addEventListener("click", doFetchRoutes);
+      orderInput.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); doFetchRoutes(); } });
+      orderInput.addEventListener("input", () => {
+        clearError(); flagNotice.classList.remove("is-visible"); currentFlag = null;
+        resetSelect(routeSel, "— selecione o pedido primeiro —"); resetSelect(dollySel, "— selecione a rota primeiro —");
+        updateSubmit();
+      });
+      routeSel.addEventListener("change", doFetchDollies);
+      dollySel.addEventListener("change", updateSubmit);
+      $("#home-form").addEventListener("submit", e => {
+        e.preventDefault();
+        if (btnIniciar.disabled) return;
+        const p = new URLSearchParams({ order: orderInput.value.trim(), route: routeSel.value, dolly: dollySel.value, flag: currentFlag || "" });
+        location.hash = p.toString();
+      });
+
+      /* Import / export */
+      $("#btn-import").addEventListener("click", () => $("#file-input").click());
+      $("#file-input").addEventListener("change", async e => {
+        const f = e.target.files[0]; if (!f) return;
+        try {
+          const text = await f.text();
+          const raw = f.name.toLowerCase().endsWith(".json") ? JSON.parse(text) : parseCSV(text);
+          const rows = normalizeRows(Array.isArray(raw) ? raw : (raw.rows || raw.data || []));
+          if (!rows.length) throw new Error("Nenhuma linha válida (verifique os nomes das colunas)");
+          ROWS = rows; lsSet(LS_DATA, rows);
+          lsSet(LS_META, { file: f.name, at: new Date().toLocaleString(LOCALE, { timeZone: TIMEZONE }) });
+          refreshDataStatus(); toast(`${rows.length} linhas importadas`, "success");
+        } catch (err) { showError("Erro ao importar: " + err.message); }
+        e.target.value = "";
+      });
+      $("#btn-clear-data").addEventListener("click", () => {
+        if (!confirm("Apagar dados importados E todo o progresso de picking?")) return;
+        [LS_DATA, LS_META, LS_STATUS, LS_SCANS, LS_EVENTS].forEach(k => localStorage.removeItem(k));
+        ROWS = []; refreshDataStatus(); toast("Dados apagados", "success");
+      });
+      $("#btn-export").addEventListener("click", () => {
+        const out = { exported_at: nowBR(), picking_status: lsGet(LS_STATUS, {}), picking_scans: lsGet(LS_SCANS, []), events: lsGet(LS_EVENTS, []) };
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([JSON.stringify(out, null, 2)], { type: "application/json" }));
+        a.download = `picking_export_${nowBR().slice(0, 19).replace(/[-:T]/g, "")}.json`;
+        a.click(); URL.revokeObjectURL(a.href);
+      });
+
+      /* =========================================================
+         PICKING VIEW
+         ========================================================= */
+      let CTX = null; // {order, route, dolly, flag}
+
+      function rowStatusHTML(st) {
+        if (st.status === "OK" || st.status === "KSE" || st.status === "WARNING") return st.status;
+        return st.boxes_scanned > 0 ? `<span class="status-progress">${st.boxes_scanned}/${st.boxes_required}</span>` : "Pending";
+      }
+      function rowClass(s) { return s === "OK" ? "row-ok" : s === "KSE" ? "row-kse" : s === "WARNING" ? "row-warning" : "row-pending"; }
+
+      function applyRowStatus(tr, st) {
+        tr.dataset.status = st.status; tr.dataset.boxesScanned = st.boxes_scanned; tr.dataset.boxesRequired = st.boxes_required;
+        tr.className = rowClass(st.status);
+        tr.querySelector(".status-cell").innerHTML = rowStatusHTML(st);
+      }
+      function recomputeRemaining() {
+        $("#caixas-restantes").textContent = $$("#picking-tbody tr[data-kanban]").filter(r => r.dataset.status !== "OK").length;
+      }
+
+      function renderPicking() {
+        const { order, route, dolly, flag } = CTX;
+        const items = fetchPickList(order, route, dolly, flag);
+        const tbody = $("#picking-tbody");
+        if (!items.length) {
+          tbody.innerHTML = `<tr><td colspan="7" class="empty-state">${ROWS.length ? "Pedido vazio" : "Nenhum dado carregado"}</td></tr>`;
+        } else {
+          tbody.innerHTML = items.map(it => {
+            const s = getStatus(order, it.caixa);
+            const st = { status: (s?.status || "PENDING"), boxes_scanned: s?.boxes_scanned || 0, boxes_required: s?.boxes_required || 1 };
+            return `<tr data-kanban="${esc(it.caixa)}" data-part-number="${esc(it.part_number)}" data-endereco="${esc(it.endereco)}"
+        data-qtd="${esc(it.qtd)}" data-status="${st.status}" data-boxes-scanned="${st.boxes_scanned}" data-boxes-required="${st.boxes_required}"
+        class="${rowClass(st.status)}">
+        <td>${esc(it.endereco)}</td><td>${esc(it.back)}</td><td class="part-number">${esc(it.part_number)}</td>
+        <td>${esc(it.qtd)}</td><td>${esc(it.exporter)}</td><td>${esc(it.caixa)}</td>
+        <td class="status-cell">${rowStatusHTML(st)}</td></tr>`;
+          }).join("");
+        }
+        $("#i-operador").textContent = DEFAULT_OPERATOR;
+        $("#i-pedido").textContent = order;
+        $("#i-lane").textContent = order.slice(-2);
+        $("#i-rota").textContent = route === "" ? "(Sem rota)" : route;
+        $("#i-dolly").textContent = dolly || "—";
+        $("#i-flag").classList.toggle("hidden", flag !== "P");
+        $("#i-msg").textContent = items.length ? "OK" : "Pedido vazio";
+        recomputeRemaining();
+      }
+
+      /* Simple hash router: #order=..&route=..&dolly=..&flag=.. */
+      function route() {
+        const p = new URLSearchParams(location.hash.slice(1));
+        const order = p.get("order");
+        if (order && ORDER_RE.test(order)) {
+          let flag = (p.get("flag") || "").toUpperCase();
+          if (flag !== "F" && flag !== "P") flag = resolveEffectiveFlag(order);
+          CTX = { order, route: p.get("route") ?? "", dolly: p.get("dolly") || "", flag };
+          $("#view-home").classList.add("hidden"); $("#view-picking").classList.remove("hidden");
+          renderPicking();
+        } else {
+          CTX = null; modal.close();
+          $("#view-picking").classList.add("hidden"); $("#view-home").classList.remove("hidden");
+          setTimeout(() => orderInput.focus(), 50);
+        }
+      }
+      window.addEventListener("hashchange", route);
+
+      $("#picking-tbody").addEventListener("click", e => {
+        const tr = e.target.closest("tr[data-kanban]"); if (tr) modal.open(tr);
+      });
+      $("#btn-exit").addEventListener("click", () => { if (confirm("Encerrar sessão?")) location.hash = ""; });
+      $("#btn-chamar").addEventListener("click", () => {
+        logEvent({ event: "ORDER_CALL", order_number: CTX?.order }); toast("Supervisor notificado", "success");
+      });
+      $("#btn-proximo").addEventListener("click", () => {
+        if (confirm("Avançar para o próximo carrinho?")) toast("Próximo carrinho (stub)", "info");
+      });
+
+      /* Clock */
+      const tf = new Intl.DateTimeFormat(LOCALE, { timeZone: TIMEZONE, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+      const df = new Intl.DateTimeFormat(LOCALE, { timeZone: TIMEZONE, day: "2-digit", month: "2-digit", year: "numeric" });
+      function tick() { const n = new Date(); $("#clock-time").textContent = tf.format(n); $("#clock-date").textContent = df.format(n); }
+      tick(); setInterval(tick, 1000);
+
+      /* =========================================================
+         MODAL
+         ========================================================= */
+      const modal = {
+        root: $("#status-modal"), input: $("#m-input"), msg: $("#m-message"), row: null,
+        open(tr) {
+          if (tr.dataset.status === "OK") return;
+          this.row = tr; this.clearMsg();
+          $("#m-endereco").textContent = tr.dataset.endereco || "—";
+          $("#m-part").textContent = tr.dataset.partNumber || "—";
+          $("#m-kanban").textContent = tr.dataset.kanban || "—";
+          $("#m-qtd").textContent = tr.dataset.qtd || "—";
+          this.progress(tr.dataset.boxesScanned, tr.dataset.boxesRequired);
+          this.input.value = "";
+          this.root.classList.add("is-open"); this.root.setAttribute("aria-hidden", "false");
+          setTimeout(() => this.input.focus(), 50);
+        },
+        close() {
+          camera.stop();
+          this.root.classList.remove("is-open"); this.root.setAttribute("aria-hidden", "true");
+          this.row = null; this.clearMsg(); this.input.value = "";
+        },
+        progress(s, r) { $("#m-scanned").textContent = s || 0; $("#m-required").textContent = r || 1; },
+        show(t, k) { this.msg.textContent = t; this.msg.className = "modal-message is-" + k; },
+        clearMsg() { this.msg.textContent = ""; this.msg.className = "modal-message"; },
+        refocus() { this.input.value = ""; this.input.focus(); },
+
+        onScan(raw) {
+          const tr = this.row; if (!tr || !String(raw || "").trim()) return;
+          let p;
+          try { p = parseScanPayload(raw); } catch (e) { this.show(e.message, "error"); return this.refocus(); }
+          try {
+            const st = recordScan({
+              order: CTX.order, kanban: tr.dataset.kanban, expectedPN: tr.dataset.partNumber,
+              scannedPN: p.partNumber, labelSeq: p.labelSeq, boxesRequired: parseInt(tr.dataset.boxesRequired || "1", 10),
+            });
+            applyRowStatus(tr, st); this.progress(st.boxes_scanned, st.boxes_required); recomputeRemaining();
+            if (st.status === "OK") { this.show("Kanban completo!", "success"); setTimeout(() => this.close(), MODAL_CLOSE_MS); }
+            else { this.show(`Escaneado ${st.boxes_scanned}/${st.boxes_required}`, "success"); this.refocus(); }
+          } catch (e) { this.show(e.message, "error"); this.refocus(); }
+        },
+        onKse() {
+          const tr = this.row; if (!tr) return;
+          const st = markKSE(CTX.order, tr.dataset.kanban, parseInt(tr.dataset.boxesRequired || "1", 10));
+          applyRowStatus(tr, st); recomputeRemaining();
+          const lacking = Math.max(0, (parseInt(tr.dataset.qtd, 10) || 0) - st.boxes_scanned * 1);
+          if (!st.wasKse) logEvent({ event: "KANBAN_KSE", order_number: CTX.order, kanban_number: tr.dataset.kanban, part_number: tr.dataset.partNumber, parts_lacking: lacking });
+          toast(`KSE registrado — ${lacking} peça(s) faltando`, "success");
+          this.close();
+        },
+        onCall() {
+          const tr = this.row; if (!tr) return;
+          logEvent({ event: "OPERATOR_CALL", order_number: CTX.order, kanban_number: tr.dataset.kanban, part_number: tr.dataset.partNumber });
+          toast("Supervisor notificado", "success");
+        },
+      };
+      $("#btn-cancel").addEventListener("click", () => modal.close());
+      $("#modal-x").addEventListener("click", () => modal.close());
+      modal.root.addEventListener("click", e => { if (e.target === modal.root) modal.close(); });
+      $("#btn-kse").addEventListener("click", () => modal.onKse());
+      $("#btn-call").addEventListener("click", () => modal.onCall());
+      modal.input.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); modal.onScan(modal.input.value); } });
+
+      /* =========================================================
+         CAMERA (BarcodeDetector)
+         ========================================================= */
+      const camera = {
+        btn: $("#btn-camera"), video: $("#camera-video"), preview: $("#camera-preview"),
+        stream: null, detector: null, raf: null,
+        async init() {
+          try {
+            if (!("BarcodeDetector" in window) || !(await BarcodeDetector.getSupportedFormats()).includes("qr_code")) throw 0;
+            this.detector = new BarcodeDetector({ formats: ["qr_code"] });
+            this.btn.addEventListener("click", () => this.stream ? this.stop() : this.start());
+          } catch { this.btn.style.display = "none"; }
+        },
+        async start() {
+          try {
+            this.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+          } catch { return toast("Câmera indisponível — use scanner externo", "error", 2500); }
+          this.video.srcObject = this.stream; await this.video.play();
+          this.preview.classList.add("is-active"); this.btn.textContent = "⏹ Desligar câmera";
+          this.loop();
+        },
+        stop() {
+          if (this.raf) cancelAnimationFrame(this.raf); this.raf = null;
+          if (this.stream) this.stream.getTracks().forEach(t => t.stop()); this.stream = null;
+          this.video.srcObject = null; this.preview.classList.remove("is-active"); this.btn.textContent = "📷 Ativar câmera";
+        },
+        async loop() {
+          if (!this.stream) return;
+          try {
+            const codes = await this.detector.detect(this.video);
+            const raw = codes?.[0]?.rawValue?.trim();
+            if (raw) { this.stop(); modal.onScan(raw); return; }
+          } catch { }
+          this.raf = requestAnimationFrame(() => this.loop());
+        },
+      };
+      camera.init();
+
+      /* Tablet touch hardening */
+      let lastTouch = 0;
+      document.addEventListener("touchend", e => { const n = Date.now(); if (n - lastTouch <= 300) e.preventDefault(); lastTouch = n; }, { passive: false });
+      document.addEventListener("contextmenu", e => e.preventDefault());
+
+      /* Boot */
+      refreshDataStatus();
+      route();
+    })();
+  </script>
+</body>
+
+</html>
